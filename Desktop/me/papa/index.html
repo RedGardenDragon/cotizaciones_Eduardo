@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cotización - Jardinería Verde</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>🪴 Cotización de Servicios - Jardinería Verde</h1>
+    <img src="logo circular con carisma para una empresa de jardinería y reformas, estilo moderno, colores verdes, nombre Difexis.png" alt="Logo de Difexis" class="logo">
+
+    <section class="form-section">
+      <label>Nombre del Cliente</label>
+      <input type="text" id="clienteNombre" placeholder="Juan Pérez" />
+
+      <label>Correo Electrónico</label>
+      <input type="email" id="clienteEmail" placeholder="cliente@ejemplo.com" />
+
+      <label>Teléfono</label>
+      <input type="tel" id="clienteTelefono" placeholder="+34 600 000 000" />
+    </section>
+
+    <section class="services-section">
+      <h2>Servicios</h2>
+      <table id="servicesTable">
+        <thead>
+          <tr>
+            <th>Servicio</th>
+            <th>Cantidad</th>
+            <th>Precio (€)</th>
+            <th>Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="text" class="desc" placeholder="Servicio" /></td>
+            <td><input type="number" class="qty" value="0" /></td>
+            <td><input type="number" class="price" value="0" /></td>
+            <td class="line-total">0.00</td>
+            <td><button class="remove">❌</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <button id="addService">Agregar Servicio</button>
+    </section>
+
+    <section class="total-section">
+      <p><strong>Total: €<span id="total">0.00</span></strong></p>
+      <button id="generatePDF">Generar PDF</button>
+    </section>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
