@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cotización - Jardinería Verde</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Cotización - Jardinería Verde</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #e8f5e9;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      background-color: #fff;
+      margin: auto;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1, h2 {
+      color: #2e7d32;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 15px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ccc;
+    }
+
+    th {
+      background-color: #c8e6c9;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 5px;
+      background-color: #388e3c;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #2e7d32;
+    }
+
+    .remove {
+      background-color: #e53935;
+    }
+
+    .remove:hover {
+      background-color: #c62828;
+    }
+
+    .total-section {
+      margin-top: 30px;
+      font-size: 1.2em;
+    }
+
+    .logo {
+      display: block;
+      margin: 0 auto;
+      width: 150px;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🪴 Cotización de Servicios - Jardinería Verde</h1>
+    <img src="logo circular con carisma para una empresa de jardinería y reformas, estilo moderno, colores verdes, nombre Difexis.png" alt="Logo de Difexis" class="logo">
+
+    <section class="form-section">
+      <label>Nombre del Cliente</label>
+      <input type="text" id="clienteNombre" placeholder="Juan Pérez" />
+
+      <label>Correo Electrónico</label>
+      <input type="email" id="clienteEmail" placeholder="cliente@ejemplo.com" />
+
+      <label>Teléfono</label>
+      <input type="tel" id="clienteTelefono" placeholder="+34 600 000 000" />
+    </section>
+
+    <section class="services-section">
+      <h2>Servicios</h2>
+      <table id="servicesTable">
+        <thead>
+          <tr>
+            <th>Servicio</th>
+            <th>Cantidad</th>
+            <th>Precio (€)</th>
+            <th>Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="text" class="desc" placeholder="Servicio" /></td>
+            <td><input type="number" class="qty" value="0" /></td>
+            <td><input type="number" class="price" value="0" /></td>
+            <td class="line-total">0.00</td>
+            <td><button class="remove">❌</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <button id="addService">Agregar Servicio</button>
+    </section>
+
+    <section class="total-section">
+      <p><strong>Total: €<span id="total">0.00</span></strong></p>
+      <button id="generatePDF">Generar PDF</button>
+    </section>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    function actualizarTotal() {
+      let total = 0;
+      document.querySelectorAll(".line-total").forEach(item => {
+        total += parseFloat(item.textContent);
+      });
+      document.getElementById("total").textContent = total.toFixed(2);
+    }
+
+    document.getElementById("addService").addEventListener("click", () => {
+      const tableBody = document.querySelector("#servicesTable tbody");
+      const newRow = document.createElement("tr");
+      newRow.innerHTML = `
+        <td><input type="text" class="desc" placeholder="Servicio" /></td>
+        <td><input type="number" class="qty" value="0" /></td>
+        <td><input type="number" class="price" value="0" /></td>
+        <td class="line-total">0.00</td>
+        <td><button class="remove">❌</button></td>
+      `;
+      tableBody.appendChild(newRow);
+
+      newRow.querySelector(".qty").addEventListener("input", actualizarLinea);
+      newRow.querySelector(".price").addEventListener("input", actualizarLinea);
+
+      newRow.querySelector(".remove").addEventListener("click", () => {
+        newRow.remove();
+        actualizarTotal();
+      });
+    });
+
+    function actualizarLinea() {
+      const row = this.closest("tr");
+      const qty = parseFloat(row.querySelector(".qty").value) || 0;
+      const price = parseFloat(row.querySelector(".price").value) || 0;
+      const lineTotal = qty * price;
+      row.querySelector(".line-total").textContent = lineTotal.toFixed(2);
+      actualizarTotal();
+    }
+
+    document.querySelector(".qty").addEventListener("input", actualizarLinea);
+    document.querySelector(".price").addEventListener("input", actualizarLinea);
+
+    document.getElementById("generatePDF").addEventListener("click", async () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      let y = 20;
+
+      const nombre = document.getElementById("clienteNombre").value;
+      const correo = document.getElementById("clienteEmail").value;
+      const telefono = document.getElementById("clienteTelefono").value;
+
+      const logo = new Image();
+      logo.src = "logo circular con carisma para una empresa de jardinería y reformas, estilo moderno, colores verdes, nombre Difexis.png";
+
+      logo.onload = function () {
+        doc.addImage(logo, "PNG", 10, 10, 40, 40);
+        generarContenidoPDF(doc, y);
+      };
+
+      logo.onerror = function () {
+        console.error("Error al cargar el logo. Continuando sin logo.");
+        generarContenidoPDF(doc, y);
+      };
+    });
+
+    function generarContenidoPDF(doc, y) {
+      doc.setFontSize(18);
+      doc.setTextColor(46, 125, 50);
+      doc.text("Cotización DIFEXIS - Jardinería y Reformas", 60, 20);
+
+      y += 50;
+      doc.setFontSize(11);
+      doc.setTextColor(0);
+      doc.text(`Cliente: ${document.getElementById("clienteNombre").value}`, 20, y);
+      y += 6;
+      doc.text(`Correo: ${document.getElementById("clienteEmail").value}`, 20, y);
+      y += 6;
+      doc.text(`Teléfono: ${document.getElementById("clienteTelefono").value}`, 20, y);
+      y += 10;
+
+      doc.setFontSize(12);
+      doc.setFillColor(200, 230, 201);
+      doc.rect(20, y, 170, 8, "F");
+      doc.text("Servicio", 22, y + 6);
+      doc.text("Cant.", 100, y + 6);
+      doc.text("Precio (€)", 120, y + 6);
+      doc.text("Total (€)", 155, y + 6);
+      y += 10;
+
+      document.querySelectorAll("#servicesTable tbody tr").forEach(row => {
+        const desc = row.querySelector(".desc").value;
+        const qty = row.querySelector(".qty").value;
+        const price = row.querySelector(".price").value;
+        const total = row.querySelector(".line-total").textContent;
+
+        doc.text(desc, 22, y);
+        doc.text(`${qty}`, 100, y);
+        doc.text(`€${price}`, 120, y);
+        doc.text(`€${total}`, 155, y);
+        y += 8;
+      });
+
+      y += 5;
+      doc.setFontSize(13);
+      doc.setTextColor(0);
+      doc.text(`Total General: €${document.getElementById("total").textContent}`, 120, y);
+
+      doc.save(`cotizacion_${document.getElementById("clienteNombre").value.replace(/\s+/g, '_')}.pdf`);
+    }
+  </script>
+</body>
+</html>
+
